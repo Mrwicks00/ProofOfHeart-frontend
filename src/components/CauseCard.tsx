@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { formatAddress } from '@/lib/formatAddress';
-import { Campaign, Vote, CATEGORY_LABELS } from '../types';
+import { Campaign, Vote, CATEGORY_LABELS, stroopsToXlm } from '../types';
+import VotingComponent from './VotingComponent';
 import CampaignStatusBadge from './CampaignStatusBadge';
 import CancelCampaignModal from './cancelCampaignModal';
 import DeadlineCountdown from './DeadlineCountdown';
@@ -53,6 +53,9 @@ export default function CauseCard({
     campaign.funding_goal > BigInt(0)
       ? Math.min(100, Math.round((Number(campaign.amount_raised) / Number(campaign.funding_goal)) * 100))
       : 0;
+
+  const raisedXlm = stroopsToXlm(campaign.amount_raised);
+  const goalXlm = stroopsToXlm(campaign.funding_goal);
 
   const isCreator =
     !!userWalletAddress && userWalletAddress === campaign.creator;
@@ -142,20 +145,22 @@ export default function CauseCard({
           {campaign.description}
         </p>
 
-        {/* Tags */}
-        {campaign.tags && campaign.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-1">
-            {campaign.tags.map((tag) => (
-              <span
-                key={tag}
-                onClick={() => onTagClick?.(tag)}
-                className="inline-flex items-center px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-700/50 text-zinc-600 dark:text-zinc-400 text-[10px] font-medium border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer"
-              >
-                #{tag}
-              </span>
-            ))}
+        {/* Funding progress */}
+        <div className="space-y-1.5">
+          <div className="flex justify-between text-xs text-zinc-500 dark:text-zinc-400">
+            <span>{raisedXlm.toLocaleString(undefined, { maximumFractionDigits: 2 })} XLM raised</span>
+            <span>{progressPct}%</span>
           </div>
-        )}
+          <div className="w-full bg-zinc-100 dark:bg-zinc-700 rounded-full h-1.5">
+            <div
+              className="bg-blue-500 h-1.5 rounded-full transition-all"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+          <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            Goal: {goalXlm.toLocaleString(undefined, { maximumFractionDigits: 2 })} XLM
+          </p>
+        </div>
 
         {/* Funding progress */}
         {campaign.funding_goal > BigInt(0) && (
