@@ -9,7 +9,14 @@ import { useToast } from '@/components/ToastProvider';
 import { useWallet } from '@/components/WalletContext';
 import { useCampaigns } from '@/hooks/useCampaigns';
 import { useRouter } from '@/i18n/routing';
-import { cancelCampaign, claimRefund, voteOnCampaign, hasVoted } from '@/lib/contractClient';
+import {
+  cancelCampaign,
+  claimRefund,
+  voteOnCampaign,
+  hasVoted,
+  getApproveVotes,
+  getRejectVotes,
+} from '@/lib/contractClient';
 import { SORT_OPTIONS } from '@/lib/mockCauses';
 import { Campaign, Vote, CATEGORY_LABELS, CampaignStatus, Category } from '@/types';
 import { getAsyncActionErrorMessage, withActionTimeout } from '@/utils/asyncAction';
@@ -102,10 +109,40 @@ function CausesContent() {
     setUserVotes(votes);
   }, [userWalletAddress, campaigns]);
 
+  const loadVoteCounts = useCallback(async () => {
+    const counts: Record<number, { upvotes: number; downvotes: number; totalVotes: number }> = {};
+    await Promise.all(
+      campaigns.map(async (campaign) => {
+        try {
+          const [approves, rejects] = await Promise.all([
+            getApproveVotes(campaign.id),
+            getRejectVotes(campaign.id),
+          ]);
+          counts[campaign.id] = {
+            upvotes: approves,
+            downvotes: rejects,
+            totalVotes: approves + rejects,
+          };
+        } catch {
+          counts[campaign.id] = { upvotes: 0, downvotes: 0, totalVotes: 0 };
+        }
+      }),
+    );
+    setVoteCounts(counts);
+  }, [campaigns]);
+
   useEffect(() => {
     if (userWalletAddress) loadUserVotes();
     else setUserVotes({});
   }, [userWalletAddress, loadUserVotes]);
+
+  useEffect(() => {
+    if (campaigns.length > 0) {
+      loadVoteCounts();
+      return;
+    }
+    setVoteCounts({});
+  }, [campaigns, loadVoteCounts]);
 
   // -------------------------------------------------------------------------
   // Vote handler
@@ -460,6 +497,9 @@ function CausesContent() {
                     onClaimRefund={handleClaimRefund}
                     onTagClick={(t: string) => setTag(t)}
                     userVote={userVotes[campaign.id]}
+                    upvotes={voteCounts[campaign.id]?.upvotes ?? 0}
+                    downvotes={voteCounts[campaign.id]?.downvotes ?? 0}
+                    totalVotes={voteCounts[campaign.id]?.totalVotes ?? 0}
                   />
                 ))}
               </div>

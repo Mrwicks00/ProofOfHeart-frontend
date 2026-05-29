@@ -22,6 +22,9 @@ interface CauseCardProps {
   onClaimRefund: (campaignId: number) => Promise<void>;
   onTagClick?: (tag: string) => void;
   userVote?: Vote;
+  upvotes?: number;
+  downvotes?: number;
+  totalVotes?: number;
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -47,6 +50,9 @@ export default function CauseCard({
   onClaimRefund,
   onTagClick,
   userVote,
+  upvotes = 0,
+  downvotes = 0,
+  totalVotes = 0,
 }: CauseCardProps) {
   const [isVoting, setIsVoting] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
@@ -211,6 +217,9 @@ export default function CauseCard({
             isVoting={isVoting}
             onVote={handleVote}
             userWalletAddress={userWalletAddress}
+            upvotes={upvotes}
+            downvotes={downvotes}
+            totalVotes={totalVotes}
           />
         )}
 
