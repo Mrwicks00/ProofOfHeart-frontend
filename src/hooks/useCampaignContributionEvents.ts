@@ -1,17 +1,15 @@
-'use client';
+"use client";
 
-import { useEffect, useRef } from 'react';
-import {
-  fetchContributionMadeEvents,
-  sumContributionAmounts,
-} from '../lib/sorobanEvents';
-import { useWindowVisibility } from './useWindowVisibility';
+import { useEffect, useRef } from "react";
+import { fetchContributionMadeEvents, sumContributionAmounts } from "../lib/sorobanEvents";
+import { useWindowVisibility } from "./useWindowVisibility";
+import { useQueryClient } from "@tanstack/react-query";
+import { useWallet } from "@/components/WalletContext";
+import { invalidateQueriesForEvents } from "@/lib/cacheInvalidation";
 
-const EVENT_POLL_INTERVAL =
-  Number(process.env.NEXT_PUBLIC_CONTRIBUTION_EVENTS_POLL_MS) || 5_000;
+const EVENT_POLL_INTERVAL = Number(process.env.NEXT_PUBLIC_CONTRIBUTION_EVENTS_POLL_MS) || 5_000;
 
-const USE_MOCKS =
-  typeof process !== 'undefined' && process.env.NEXT_PUBLIC_USE_MOCKS === 'true';
+const USE_MOCKS = typeof process !== "undefined" && process.env.NEXT_PUBLIC_USE_MOCKS === "true";
 
 export interface UseCampaignContributionEventsOptions {
   campaignId: number;
@@ -32,6 +30,8 @@ export function useCampaignContributionEvents({
   const seenEventIdsRef = useRef<Set<string>>(new Set());
   const cursorRef = useRef<string | undefined>(undefined);
   const onContributionsRef = useRef(onContributions);
+  const queryClient = useQueryClient();
+  const { publicKey: currentWalletAddress } = useWallet();
 
   useEffect(() => {
     onContributionsRef.current = onContributions;
@@ -67,6 +67,9 @@ export function useCampaignContributionEvents({
         if (unseen.length > 0) {
           const delta = sumContributionAmounts(unseen);
           onContributionsRef.current?.(delta, unseen.length);
+
+          // Invalidate relevant queries for the new events
+          invalidateQueriesForEvents(queryClient, unseen, currentWalletAddress);
         }
       } catch {
         // RPC errors are non-fatal; reconciliation via get_campaign covers drift.
