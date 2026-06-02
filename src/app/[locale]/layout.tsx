@@ -10,6 +10,7 @@ import { ToastProvider } from "@/components/ToastProvider";
 import { WalletProvider } from "@/components/WalletContext";
 import { DevMockPanel } from "@/components/DevMockPanel";
 import OnboardingTour from "@/components/OnboardingTour";
+import MaintenanceBypass from "@/components/MaintenanceBypass";
 import { routing } from "@/i18n/routing";
 import { absoluteUrl, buildAlternates } from "@/lib/seo";
 import type { Metadata } from "next";
@@ -107,6 +108,7 @@ export default async function RootLayout({
                       <Footer />
                       <DevMockPanel />
                       <OnboardingTour />
+                      <MaintenanceBypass />
                     </div>
                   </WalletProvider>
                 </ToastProvider>
