@@ -2,7 +2,13 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { claimRevenue, depositRevenue } from "../lib/contractClient";
-import { Campaign, basisPointsToPercentage, formatStroopsAsXlm, xlmToStroops } from "../types";
+import {
+  Campaign,
+  Category,
+  basisPointsToPercentage,
+  formatStroopsAsXlm,
+  xlmToStroops,
+} from "../types";
 import { useToast } from "./ToastProvider";
 import { useWallet } from "./WalletContext";
 import { useRevenueSharing } from "../hooks/useRevenueSharing";
@@ -35,9 +41,11 @@ export default function RevenueSharingPanel({
   const [depositAmount, setDepositAmount] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [txPhase, setTxPhase] = useState<TransactionLifecyclePhase | null>(null);
+  const isRevenueSharingEligible =
+    campaign.category === Category.EducationalStartup && campaign.has_revenue_sharing;
 
   const { revenuePool, contribution, claimed, contributorShare, claimable, isLoading, refetch } =
-    useRevenueSharing(campaign.id, publicKey, campaign.amount_raised, campaign.has_revenue_sharing);
+    useRevenueSharing(campaign.id, publicKey, campaign.amount_raised, isRevenueSharingEligible);
 
   const isCreator = isSameAddress(publicKey, campaign.creator);
   const canShowCreatorControls = showCreatorControls && isCreator;
@@ -61,7 +69,7 @@ export default function RevenueSharingPanel({
     return percentage.toFixed(2);
   }, [campaign.amount_raised, contribution]);
 
-  if (!campaign.has_revenue_sharing) {
+  if (!isRevenueSharingEligible) {
     return null;
   }
 
