@@ -2,11 +2,11 @@
 
 import { Link } from "@/i18n/routing";
 import { useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useContributions } from "../hooks/useContributions";
 import { claimRefund, claimRevenue } from "../lib/contractClient";
 import { explorerTxUrl } from "../utils/explorer";
-import { formatStroopsAsXlm } from "../types";
+import { formatAmount } from "@/lib/formatters";
 import { useToast } from "./ToastProvider";
 import { parseContractError } from "../utils/contractErrors";
 import type { WalletTransactionAction } from "../lib/transactionLog";
@@ -15,10 +15,6 @@ import type { ContributionHistoryItem } from "../hooks/useContributions";
 
 interface MyContributionsSectionProps {
   walletAddress: string;
-}
-
-function formatXlmAmount(value: bigint): string {
-  return formatStroopsAsXlm(value, { maximumFractionDigits: 7 });
 }
 
 type ContributionDisplayStatus = "active" | "refundable" | "revenue-claimable";
@@ -53,6 +49,9 @@ function getStatusClasses(status: ContributionDisplayStatus): string {
 
 export default function MyContributionsSection({ walletAddress }: MyContributionsSectionProps) {
   const t = useTranslations("MyContributions");
+  const locale = useLocale();
+  const formatXlmAmount = (value: bigint) =>
+    formatAmount(value, locale, { maximumFractionDigits: 7 });
   const { showError, showSuccess } = useToast();
   const [pendingCampaignId, setPendingCampaignId] = useState<number | null>(null);
   const [pendingAction, setPendingAction] = useState<"refund" | "revenue" | null>(null);

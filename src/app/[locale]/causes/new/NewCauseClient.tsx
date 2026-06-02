@@ -7,7 +7,8 @@ import { useToast } from '@/components/ToastProvider';
 import { useWallet } from '@/components/WalletContext';
 import { useRouter } from '@/i18n/routing';
 import { createCampaign, getCampaignCount, type TransactionLifecyclePhase } from '@/lib/contractClient';
-import { Category, CATEGORY_LABELS, xlmToStroops } from '@/types';
+import { Category, CATEGORY_LABELS } from '@/types';
+import { xlmToStroops } from '@/lib/stellarAmount';
 import { parseContractError } from '@/utils/contractErrors';
 
 // ---------------------------------------------------------------------------

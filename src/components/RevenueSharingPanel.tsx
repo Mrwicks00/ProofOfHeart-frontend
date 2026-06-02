@@ -1,14 +1,15 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { useLocale } from "next-intl";
 import { claimRevenue, depositRevenue } from "../lib/contractClient";
 import {
   Campaign,
   Category,
   basisPointsToPercentage,
-  formatStroopsAsXlm,
-  xlmToStroops,
 } from "../types";
+import { xlmToStroops } from "@/lib/stellarAmount";
+import { formatAmount } from "@/lib/formatters";
 import { useToast } from "./ToastProvider";
 import { useWallet } from "./WalletContext";
 import { useRevenueSharing } from "../hooks/useRevenueSharing";
@@ -25,8 +26,8 @@ interface RevenueSharingPanelProps {
   onActionSuccess?: () => void;
 }
 
-function formatXlmAmount(value: bigint): string {
-  return formatStroopsAsXlm(value, { maximumFractionDigits: 4 });
+function formatXlmAmount(value: bigint, locale: string): string {
+  return formatAmount(value, locale, { maximumFractionDigits: 4 });
 }
 
 export default function RevenueSharingPanel({
@@ -36,6 +37,8 @@ export default function RevenueSharingPanel({
   showContributorControls = true,
   onActionSuccess,
 }: RevenueSharingPanelProps) {
+  const locale = useLocale();
+  const formatXlm = (value: bigint) => formatXlmAmount(value, locale);
   const { publicKey, connectWallet, isWalletConnected } = useWallet();
   const { showError, showSuccess, showWarning } = useToast();
   const [depositAmount, setDepositAmount] = useState("");
@@ -57,8 +60,8 @@ export default function RevenueSharingPanel({
       return "No contributor share is available until the campaign has raised funds.";
     }
 
-    return `${formatXlmAmount(contribution)} XLM contribution × ${formatXlmAmount(revenuePool)} XLM pool ÷ ${formatXlmAmount(campaign.amount_raised)} XLM raised = ${formatXlmAmount(contributorShare)} XLM`;
-  }, [campaign.amount_raised, contribution, contributorShare, revenuePool]);
+    return `${formatXlm(contribution)} XLM contribution × ${formatXlm(revenuePool)} XLM pool ÷ ${formatXlm(campaign.amount_raised)} XLM raised = ${formatXlm(contributorShare)} XLM`;
+  }, [campaign.amount_raised, contribution, contributorShare, locale, revenuePool]);
 
   const contributorSharePercentage = useMemo(() => {
     if (campaign.amount_raised <= BigInt(0)) {
@@ -151,7 +154,7 @@ export default function RevenueSharingPanel({
             <Tooltip content="The total amount of revenue that has been deposited into this campaign's revenue pool available for all contributors to claim." />
           </div>
           <p className="mt-2 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
-            {formatXlmAmount(revenuePool)} XLM
+            {formatXlm(revenuePool)} XLM
           </p>
         </div>
         <div className="rounded-2xl bg-white/80 p-4 ring-1 ring-zinc-200 dark:bg-zinc-900/60 dark:ring-zinc-700">
@@ -162,7 +165,7 @@ export default function RevenueSharingPanel({
             <Tooltip content={`Your proportional share of the revenue pool based on your ${contributorSharePercentage}% contribution to the campaign. Calculated as: (your contribution ÷ total raised) × total pool.`} />
           </div>
           <p className="mt-2 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
-            {formatXlmAmount(contributorShare)} XLM
+            {formatXlm(contributorShare)} XLM
           </p>
         </div>
         <div className="rounded-2xl bg-white/80 p-4 ring-1 ring-zinc-200 dark:bg-zinc-900/60 dark:ring-zinc-700">
@@ -173,7 +176,7 @@ export default function RevenueSharingPanel({
             <Tooltip content="The total amount of revenue you have already claimed from your share. This is deducted from your total share to calculate the claimable amount." />
           </div>
           <p className="mt-2 text-xl font-semibold text-zinc-900 dark:text-zinc-50">
-            {formatXlmAmount(claimed)} XLM
+            {formatXlm(claimed)} XLM
           </p>
         </div>
         <div className="rounded-2xl bg-white/80 p-4 ring-1 ring-zinc-200 dark:bg-zinc-900/60 dark:ring-zinc-700">
@@ -184,7 +187,7 @@ export default function RevenueSharingPanel({
             <Tooltip content="The amount of revenue you can claim right now. This is your share minus what you've already claimed." />
           </div>
           <p className="mt-2 text-xl font-semibold text-emerald-700 dark:text-emerald-300">
-            {formatXlmAmount(claimable)} XLM
+            {formatXlm(claimable)} XLM
           </p>
         </div>
       </div>
@@ -226,7 +229,7 @@ export default function RevenueSharingPanel({
               </p>
               <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                 {hasContribution
-                  ? `You contributed ${formatXlmAmount(contribution)} XLM to this campaign.`
+                  ? `You contributed ${formatXlm(contribution)} XLM to this campaign.`
                   : "You have not contributed to this campaign yet, so your claimable share is currently 0 XLM."}
               </p>
             </div>

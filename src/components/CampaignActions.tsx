@@ -2,7 +2,8 @@
 
 import React, { useState, useCallback } from "react";
 import { useLocale } from "next-intl";
-import { Campaign, basisPointsToPercentage, xlmToStroops } from "../types";
+import { Campaign, basisPointsToPercentage } from "../types";
+import { xlmToStroops } from "@/lib/stellarAmount";
 import { formatAmount } from "@/lib/formatters";
 import AsyncButtonContent from "./AsyncButtonContent";
 import { useToast } from "./ToastProvider";

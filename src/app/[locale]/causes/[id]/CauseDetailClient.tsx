@@ -39,7 +39,8 @@ import {
 } from "@/lib/contractClient";
 import { useTranslations, useLocale } from "next-intl";
 import { CauseDetailSkeleton } from "@/components/Skeleton";
-import { Campaign, Vote, CATEGORY_LABELS, stroopsToXlm } from "@/types";
+import { Campaign, Vote, CATEGORY_LABELS } from "@/types";
+import { stroopsToXlmNumber } from "@/lib/stellarAmount";
 import { parseContractError } from "@/utils/contractErrors";
 import { getAsyncActionErrorMessage, withActionTimeout } from "@/utils/asyncAction";
 import { trackViewCampaign } from "@/lib/analytics";
@@ -247,8 +248,8 @@ export default function CauseDetailClient({ id }: { id: string }) {
     );
   }
 
-  const raised = Number(stroopsToXlm(campaign.amount_raised));
-  const goal = Number(stroopsToXlm(campaign.funding_goal));
+  const raised = stroopsToXlmNumber(campaign.amount_raised);
+  const goal = stroopsToXlmNumber(campaign.funding_goal);
   const fundingPct = goal > 0 ? Math.min(100, Math.round((raised / goal) * 100)) : 0;
   const approvalRate =
     voteCounts.totalVotes > 0 ? Math.round((voteCounts.upvotes / voteCounts.totalVotes) * 100) : 0;
@@ -264,7 +265,7 @@ export default function CauseDetailClient({ id }: { id: string }) {
     campaign.is_cancelled ||
     (now > campaign.deadline && campaign.amount_raised < campaign.funding_goal);
 
-  const refundableXlm = parseFloat(Number(stroopsToXlm(refundableAmount)).toString()) || 0;
+  const refundableXlm = stroopsToXlmNumber(refundableAmount) || 0;
 
 
   return (

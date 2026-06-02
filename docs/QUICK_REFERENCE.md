@@ -70,6 +70,14 @@ docker-compose down
 
 **Docs**: [DEV_MOCK_PANEL.md](./DEV_MOCK_PANEL.md)
 
+## Stellar XLM amounts
+
+**Conversion**: `@/lib/stellarAmount` (`stroopsToXlm`, `xlmToStroops`)
+
+**Display**: `@/lib/formatters` (`formatAmount` with `useLocale()`)
+
+**Docs**: [STELLAR_AMOUNT.md](./STELLAR_AMOUNT.md)
+
 ## Branch Naming
 
 ```

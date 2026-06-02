@@ -1,4 +1,4 @@
-import { formatNumber, formatXlm, formatDate, formatShortDate } from "@/lib/formatters";
+import { formatNumber, formatXlm, formatDate, formatShortDate, formatAmount } from "@/lib/formatters";
 
 describe("formatNumber", () => {
   it("formats with en grouping separators", () => {
@@ -26,6 +26,16 @@ describe("formatXlm", () => {
   it("formats zero correctly", () => {
     expect(formatXlm(0, "en")).toBe("0");
     expect(formatXlm(0, "es")).toBe("0");
+  });
+});
+
+describe("formatAmount", () => {
+  it("formats stroops as locale-aware XLM in en", () => {
+    expect(formatAmount(12_500_000n, "en", { maximumFractionDigits: 2 })).toBe("1.25");
+  });
+
+  it("formats zero stroops", () => {
+    expect(formatAmount(0n, "en")).toBe("0");
   });
 });
 

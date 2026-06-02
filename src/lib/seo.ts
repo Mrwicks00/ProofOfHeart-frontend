@@ -1,6 +1,6 @@
 import { routing } from "@/i18n/routing";
 import type { Campaign } from "@/types";
-import { stroopsToXlm } from "@/types";
+import { stroopsToXlm } from "@/lib/stellarAmount";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://proofofheart.xyz";
 

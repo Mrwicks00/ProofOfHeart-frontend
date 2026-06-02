@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { contribute } from "../lib/contractClient";
 import { getEstimatedContributeNetworkFeeXlm } from "../lib/networkFee";
-import { Campaign, xlmToStroops, formatStroopsAsXlm, basisPointsToPercentage } from "../types";
+import { Campaign, basisPointsToPercentage } from "../types";
+import { xlmToStroops, stroopsToXlmNumber } from "@/lib/stellarAmount";
+import { formatAmount } from "@/lib/formatters";
 import { useToast } from "./ToastProvider";
 import { useWallet } from "./WalletContext";
 import { usePlatformFee } from "../hooks/usePlatformFee";
@@ -106,8 +108,8 @@ export default function DonationModal({ campaign, onClose, onSuccess }: Donation
   }, [step, onClose]);
 
   const locale = useLocale();
-  const goal = Number(stroopsToXlm(campaign.funding_goal));
-  const raised = Number(stroopsToXlm(campaign.amount_raised));
+  const goal = stroopsToXlmNumber(campaign.funding_goal);
+  const raised = stroopsToXlmNumber(campaign.amount_raised);
 
   const validateAmount = (
     value: string,

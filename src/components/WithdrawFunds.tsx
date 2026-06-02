@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { withdrawFunds } from "../lib/contractClient";
-import { Campaign, basisPointsToPercentage, formatStroopsAsXlm } from "../types";
+import { Campaign, basisPointsToPercentage } from "../types";
+import { formatNumber } from "@/lib/formatters";
+import { stroopsToXlmNumber } from "@/lib/stellarAmount";
 import { useToast } from "./ToastProvider";
 import { isSameAddress } from "../lib/stellar";
 import { parseContractError } from "../utils/contractErrors";
@@ -25,6 +27,7 @@ export default function WithdrawFunds({
   onWithdrawSuccess,
 }: WithdrawFundsProps) {
   const t = useTranslations("WithdrawFunds");
+  const locale = useLocale();
   const tContractErrors = useTranslations("ContractErrors");
   const [showConfirm, setShowConfirm] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
@@ -60,14 +63,13 @@ export default function WithdrawFunds({
           ? t("disabledStillActive")
           : null;
 
-  const totalRaisedStr = formatStroopsAsXlm(campaign.amount_raised, { maximumFractionDigits: 7 });
-  const totalRaised = parseFloat(totalRaisedStr);
+  const totalRaised = stroopsToXlmNumber(campaign.amount_raised);
   const feeAmount = totalRaised * (platformFeeBps / 10000);
   const creatorAmount = totalRaised - feeAmount;
   const feePct = basisPointsToPercentage(platformFeeBps);
 
   const formatXlm = (value: number) =>
-    value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    formatNumber(value, locale, { maximumFractionDigits: 2, minimumFractionDigits: 0 });
 
   const handleWithdraw = async () => {
     setTxPhase(null);

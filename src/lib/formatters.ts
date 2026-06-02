@@ -1,4 +1,4 @@
-import { stroopsToXlm } from "../types";
+import { stroopsToXlm } from "@/lib/stellarAmount";
 
 /**
  * Locale-aware formatting utilities using Intl APIs.

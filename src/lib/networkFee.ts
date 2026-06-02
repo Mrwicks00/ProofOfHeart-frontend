@@ -1,6 +1,5 @@
-import { formatStroopsAsXlm } from "@/types";
-
-const STROOPS_PER_XLM = 10_000_000n;
+import { formatAmount } from "@/lib/formatters";
+import { STROOPS_PER_XLM } from "@/lib/stellarAmount";
 
 /**
  * Conservative default for a single Soroban `contribute` invocation (stroops).
@@ -31,5 +30,5 @@ export function getEstimatedContributeNetworkFeeXlm(): number {
 }
 
 export function formatEstimatedNetworkFeeXlm(maximumFractionDigits = 7): string {
-  return formatStroopsAsXlm(getEstimatedContributeNetworkFeeStroops(), { maximumFractionDigits });
+  return formatAmount(getEstimatedContributeNetworkFeeStroops(), "en", { maximumFractionDigits });
 }

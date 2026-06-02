@@ -12,7 +12,6 @@ import {
   Vote,
   CATEGORY_LABELS,
   calculateFundingPercentage,
-  formatStroopsAsXlm,
 } from '../types';
 import AsyncButtonContent from './AsyncButtonContent';
 import CampaignStatusBadge from './CampaignStatusBadge';
