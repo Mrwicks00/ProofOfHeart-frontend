@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, X, Moon, Sun, ShieldCheck, Plus } from "lucide-react";
+import { Menu, X, Moon, Sun, ShieldCheck, Plus, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from 'next-intl';
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -12,6 +12,7 @@ import { formatAddress } from "@/lib/formatAddress";
 import LanguageSwitcher from "./LanguageSwitcher";
 import NotificationBell from "./NotificationBell";
 import { useCampaigns } from "@/hooks/useCampaigns";
+import { useContractVersion } from "@/hooks/useContractVersion";
 import { IS_MOCK_MODE } from "@/lib/runtimeEnv";
 
 export default function Navbar() {
@@ -35,6 +36,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const t = useTranslations('Common');
   const { admin: adminAddress } = useAdmin();
+  const { isMismatch, version, expectedVersion } = useContractVersion();
 
   const { campaigns } = useCampaigns();
   const pendingCount = useMemo(() => {
@@ -107,6 +109,15 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-white/80 backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/80 transition-all duration-300">
+      {isMismatch && (
+        <div className="border-b border-red-200 bg-red-50 px-4 py-2 text-center text-xs font-bold text-red-900 dark:border-red-900/40 dark:bg-red-950/60 dark:text-red-200 flex items-center justify-center gap-2">
+          <AlertTriangle size={14} className="shrink-0" />
+          <span>
+            Contract version mismatch: Found <strong>c{version}</strong> but the app expects <strong>c{expectedVersion}</strong>. 
+            Some features may be disabled or behave unexpectedly.
+          </span>
+        </div>
+      )}
       {walletNetworkWarning && (
         <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-xs font-semibold text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-200">
           {walletNetworkWarning}

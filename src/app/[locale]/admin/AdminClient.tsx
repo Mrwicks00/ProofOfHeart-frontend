@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Smartphone,
   Flag,
+  AlertTriangle,
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -52,11 +53,14 @@ const CancelCampaignModal = dynamic(() => import("@/components/cancelCampaignMod
 });
 import { AdminSkeleton } from "@/components/Skeleton";
 import { Campaign } from "@/types";
+import { useContractVersion } from "@/hooks/useContractVersion";
 
 export default function AdminDashboard() {
   const { campaigns, isLoading, refetch, isRefreshing } = useCampaigns();
   const { publicKey, isWalletConnected, connectWallet, isLoading: isWalletLoading } = useWallet();
+  const { version: contractVersion, isMismatch: isVersionMismatch, expectedVersion } = useContractVersion();
   const queryClient = useQueryClient();
+
   const { showSuccess, showError, showWarning } = useToast();
   const t = useTranslations("Admin");
   const locale = useLocale();
@@ -421,6 +425,24 @@ export default function AdminDashboard() {
             >
               {t("observabilityLink")}
             </Link>
+            <div className={`rounded-2xl border px-5 py-3 shadow-sm flex items-center gap-3 ${
+              isVersionMismatch 
+                ? "bg-red-50 border-red-200 text-red-900 dark:bg-red-950/20 dark:border-red-900/40 dark:text-red-200" 
+                : "bg-blue-50 border-blue-100 text-blue-900 dark:bg-blue-900/20 dark:border-blue-800/40 dark:text-blue-200"
+            }`}>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Contract Version</span>
+                <span className="font-mono text-sm font-bold flex items-center gap-2">
+                  {isVersionMismatch && <AlertTriangle size={14} />}
+                  v{contractVersion ?? "..."}
+                  {isVersionMismatch && (
+                    <span className="text-[10px] font-normal opacity-70">
+                      (Expected v{expectedVersion})
+                    </span>
+                  )}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </section>

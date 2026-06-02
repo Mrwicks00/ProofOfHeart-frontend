@@ -518,6 +518,23 @@ export async function getAdmin(): Promise<string> {
   }
 }
 
+export const EXPECTED_CONTRACT_VERSION = 1;
+
+/**
+ * Fetches the contract version.
+ */
+export async function getVersion(): Promise<number> {
+  if (USE_MOCKS) return 1;
+
+  try {
+    const result = await invokeViewMethod("get_version");
+    if (!result) return 0;
+    return result.u32();
+  } catch (err) {
+    throw new Error(parseContractError(err));
+  }
+}
+
 /**
  * Fetches the platform fee in basis points.
  */

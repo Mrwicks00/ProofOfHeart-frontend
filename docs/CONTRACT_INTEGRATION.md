@@ -189,7 +189,7 @@ editing `contractClient.ts`.
 | `get_approve_votes(campaign_id)`                | _pending_                                    | _pending_                                        | `/causes/[id]` (community vote UI)              |
 | `get_reject_votes(campaign_id)`                 | _pending_                                    | _pending_                                        | `/causes/[id]` (community vote UI)              |
 | `has_voted(campaign_id, voter)`                 | _pending_                                    | _pending_                                        | `/causes/[id]` (community vote UI)              |
-| `get_version()`                                 | _pending_                                    | —                                                | admin / debug                                   |
+| `get_version()`                                 | `getVersion()`                               | —                                                | admin / debug / footer                          |
 
 ### Write functions
 

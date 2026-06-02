@@ -3,10 +3,13 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
+import { useContractVersion } from "@/hooks/useContractVersion";
+import { AlertTriangle } from "lucide-react";
 
 export default function Footer() {
   const t = useTranslations("Footer");
   const year = new Date().getFullYear();
+  const { version, isMismatch, isLoading } = useContractVersion();
 
   const productLinks = [
     { href: "/", label: t("home") },
@@ -86,11 +89,26 @@ export default function Footer() {
           <p>{t("rights", { year })}</p>
           <p className="flex items-center gap-3">
             <span>{t("builtWith")}</span>
-            {process.env.NEXT_PUBLIC_APP_VERSION && (
-              <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
-                v{process.env.NEXT_PUBLIC_APP_VERSION}
-              </span>
-            )}
+            <div className="flex items-center gap-1.5">
+              {process.env.NEXT_PUBLIC_APP_VERSION && (
+                <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-[10px] uppercase font-bold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400" title="App Version">
+                  v{process.env.NEXT_PUBLIC_APP_VERSION}
+                </span>
+              )}
+              {!isLoading && version !== null && (
+                <span 
+                  className={`flex items-center gap-1 rounded px-1.5 py-0.5 font-mono text-[10px] uppercase font-bold ${
+                    isMismatch 
+                      ? "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-800" 
+                      : "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-100/50 dark:border-blue-800/50"
+                  }`}
+                  title={isMismatch ? "Contract version mismatch! Unexpected behavior may occur." : "Contract Version"}
+                >
+                  {isMismatch && <AlertTriangle size={10} />}
+                  c{version}
+                </span>
+              )}
+            </div>
           </p>
         </div>
       </div>
