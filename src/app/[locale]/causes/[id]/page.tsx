@@ -1,4 +1,5 @@
-import { absoluteUrl, buildAlternates } from "@/lib/seo";
+import { getTranslations } from "next-intl/server";
+import { absoluteUrl, buildAlternates, buildCauseJsonLd } from "@/lib/seo";
 import { getCampaign } from "@/lib/contractClient";
 import CauseDetailClient from "./CauseDetailClient";
 
@@ -57,6 +58,31 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function Page({ params }: Props) {
-  const { id } = await params;
-  return <CauseDetailClient id={id} />;
+  const { id, locale } = await params;
+
+  const [campaign, t] = await Promise.all([
+    getCampaign(Number(id)),
+    getTranslations({ locale, namespace: "CauseJsonLd" }),
+  ]);
+
+  const jsonLd = campaign
+    ? buildCauseJsonLd(campaign, locale, {
+        donateActionName: t("donateActionName", { title: campaign.title }),
+        fundingGoalLabel: t("fundingGoalLabel"),
+        amountRaisedLabel: t("amountRaisedLabel"),
+        deadlineLabel: t("deadlineLabel"),
+      })
+    : null;
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      <CauseDetailClient id={id} />
+    </>
+  );
 }

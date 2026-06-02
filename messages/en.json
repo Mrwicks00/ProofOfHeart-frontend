@@ -422,5 +422,11 @@
     "noContractErrors": "No contract errors in the current window.",
     "recentEvents": "Recent events",
     "noRecentEvents": "No recent events recorded yet."
+  },
+  "CauseJsonLd": {
+    "donateActionName": "Support {title}",
+    "fundingGoalLabel": "Funding Goal",
+    "amountRaisedLabel": "Amount Raised",
+    "deadlineLabel": "Funding Deadline"
   }
 }

@@ -1,12 +1,6 @@
 import { Metadata } from "next";
-import dynamic from "next/dynamic";
 import { buildAlternates } from "@/lib/seo";
-import { AdminSkeleton } from "@/components/Skeleton";
-
-const AdminClient = dynamic(() => import("./AdminClient"), {
-  ssr: false,
-  loading: () => <AdminSkeleton />,
-});
+import AdminPageClient from "./AdminPageClient";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -32,5 +26,5 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default function Page() {
-  return <AdminClient />;
+  return <AdminPageClient />;
 }
