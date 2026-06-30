@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { Campaign, Vote, CATEGORY_LABELS, stroopsToXlm } from '@/types';
 import { useCampaign } from '@/hooks/useCampaign';
 import { usePlatformFee } from '@/hooks/usePlatformFee';
@@ -23,7 +24,7 @@ function formatDate(ts: number) {
 
 export default function CauseDetailClient({ id }: { id: string }) {
   const { publicKey: userWalletAddress } = useWallet();
-  const { campaign: fetchedCampaign, isLoading, error, refetch } = useCampaign(Number(id));
+  const { campaign: fetchedCampaign, isLoading, error, notFound: isNotFound, refetch } = useCampaign(Number(id));
   const { platformFeeBps, isLoading: isPlatformFeeLoading, isFallback } = usePlatformFee();
 
   const [campaign, setCampaign] = useState<Campaign | null>(null);
@@ -116,26 +117,17 @@ export default function CauseDetailClient({ id }: { id: string }) {
       </div>
     );
   }
+
+  if (isNotFound) {
+    notFound();
+  }
+
   if (error) {
     return (
       <div className="min-h-screen bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-800">
         <main className="container mx-auto px-4 py-24 text-center">
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 mb-4">Failed to load cause</h1>
           <p className="text-zinc-600 dark:text-zinc-400 mb-8">{error}</p>
-          <Link href="/causes" className="px-6 py-3 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition-colors">
-            ← Back to Causes
-          </Link>
-        </main>
-      </div>
-    );
-  }
-
-  if (!campaign) {
-    return (
-      <div className="min-h-screen bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-800">
-        <main className="container mx-auto px-4 py-24 text-center">
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 mb-4">Cause not found</h1>
-          <p className="text-zinc-600 dark:text-zinc-400 mb-8">This cause does not exist or has been removed.</p>
           <Link href="/causes" className="px-6 py-3 bg-blue-600 text-white rounded-full font-medium hover:bg-blue-700 transition-colors">
             ← Back to Causes
           </Link>

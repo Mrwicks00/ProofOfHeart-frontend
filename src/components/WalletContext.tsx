@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { getAddress, isConnected, isAllowed } from '@stellar/freighter-api';
 import { useToast } from './ToastProvider';
+import InstallFreighterModal from './InstallFreighterModal';
 
 interface WalletContextType {
   publicKey: string | null;
@@ -17,10 +18,10 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { showError, showWarning, showSuccess } = useToast();
+  const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const { showError, showSuccess } = useToast();
 
   useEffect(() => {
-    // Restore session from localStorage
     const storedKey = localStorage.getItem('stellar_wallet_public_key');
     if (storedKey) {
       setPublicKey(storedKey);
@@ -45,19 +46,26 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const isFreighterInstalled = async (): Promise<boolean> => {
+    try {
+      return await isConnected();
+    } catch {
+      return false;
+    }
+  };
+
   const connectWallet = async () => {
     setIsLoading(true);
     try {
-      const connected = await isConnected();
-      if (!connected) {
-        showWarning('Freighter wallet not found. Opening install page…');
-        window.open('https://www.freighter.app/', '_blank');
+      const installed = await isFreighterInstalled();
+      if (!installed) {
+        setShowInstallPrompt(true);
         setIsLoading(false);
         return;
       }
       const allowed = await isAllowed();
       if (!allowed) {
-        showWarning('Please allow Freighter to connect to this site.');
+        setShowInstallPrompt(false);
         setIsLoading(false);
         return;
       }
@@ -73,6 +81,14 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const handleRetryInstall = async () => {
+    const installed = await isFreighterInstalled();
+    if (installed) {
+      setShowInstallPrompt(false);
+      connectWallet();
+    }
+  };
+
   const disconnectWallet = () => {
     setPublicKey(null);
     setIsWalletConnected(false);
@@ -82,6 +98,11 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
   return (
     <WalletContext.Provider value={{ publicKey, isWalletConnected, connectWallet, disconnectWallet, isLoading }}>
       {children}
+      <InstallFreighterModal
+        isOpen={showInstallPrompt}
+        onClose={() => setShowInstallPrompt(false)}
+        onRetry={handleRetryInstall}
+      />
     </WalletContext.Provider>
   );
 };
